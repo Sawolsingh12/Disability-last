@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistive Mobility Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .status-item {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .status-item.active {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .status-item.inactive {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .status-item.danger {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1976D2, #1565C0);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #d32f2f, #c62828);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #45a049, #388e3c);
+            transform: translateY(-2px);
+        }
+
+        .sensor-data {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .sensor-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .sensor-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .sensor-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .log-container {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .log-entry {
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+        }
+
+        .connected {
+            background: #4CAF50;
+        }
+
+        .disconnected {
+            background: #f44336;
+        }
+
+        .mode-indicator {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .mode-button {
+            padding: 10px 20px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-button.active {
+            border-color: #4CAF50;
+            background: #4CAF50;
+            color: white;
+        }
+
+        .alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translate(-50%, -60%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+    </style>
+</head>
+<body>
+    <div class="connection-status" id="connectionStatus">
+        <span id="statusText">Connecting...</span>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🧑‍🦽 Assistive Mobility Dashboard</h1>
+            <p>Real-time monitoring and control system</p>
+        </div>
+
+        <div class="dashboard">
+            <!-- System Status Card -->
+            <div class="card">
+                <h3>🔧 System Status</h3>
+                <div class="status-grid">
+                    <div class="status-item" id="systemStatus">
+                        <strong>System</strong><br>
+                        <span id="systemText">Online</span>
+                    </div>
+                    <div class="status-item" id="batteryStatus">
+                        <strong>Battery</strong><br>
+                        <span id="batteryText">85%</span>
+                    </div>
+                    <div class="status-item" id="motorStatus">
+                        <strong>Motors</strong><br>
+                        <span id="motorText">Active</span>
+                    </div>
+                    <div class="status-item" id="sensorStatus">
+                        <strong>Sensors</strong><br>
+                        <span id="sensorText">Normal</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Mode Card -->
+            <div class="card">
+                <h3>🎮 Control Mode</h3>
+                <div class="mode-indicator">
+                    <div class="mode-button" id="manualMode" onclick="setMode('manual')">
+                        Manual
+                    </div>
+                    <div class="mode-button active" id="tiltMode" onclick="setMode('tilt')">
+                        Tilt Control
+                    </div>
+                    <div class="mode-button" id="autoMode" onclick="setMode('auto')">
+                        Auto Navigate
+                    </div>
+                </div>
+                <div class="controls">
+                    <div class="control-row">
+                        <button class="btn btn-danger" onclick="emergencyStop()">
+                            🛑 Emergency Stop
+                        </button>
+                        <button class="btn btn-success" onclick="resetSystem()">
+                            🔄 Reset System
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ramp Control Card -->
+            <div class="card">
+                <h3>🛤️ Ramp Control</h3>
+                <div class="controls">
+                    <div class="control-row">
+                        <button class="btn btn-primary" onclick="deployRamp()">
+                            📤 Deploy Ramp
+                        </button>
+                        <button class="btn btn-primary" onclick="retractRamp()">
+                            📥 Retract Ramp
+                        </button>
+                    </div>
+                    <div class="control-row">
+                        <button class="btn btn-primary" onclick="activateBrake()">
+                            🔒 Engage Brake
+                        </button>
+                        <button class="btn btn-primary" onclick="releaseBrake()">
+                            🔓 Release Brake
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sensor Data Card -->
+            <div class="card">
+                <h3>📊 Sensor Data</h3>
+                <div class="sensor-data">
+                    <div class="sensor-item">
+                        <div class="sensor-value" id="speedValue">7</div>
+                        <div class="sensor-label">Speed Level</div>
+                    </div>
+                    <div class="sensor-item">
+                        <div class="sensor-value" id="distanceValue">156</div>
+                        <div class="sensor-label">Distance (cm)</div>
+                    </div>
+                    <div class="sensor-item">
+                        <div class="sensor-value" id="tiltXValue">2.3</div>
+                        <div class="sensor-label">Tilt X (°)</div>
+                    </div>
+                    <div class="sensor-item">
+                        <div class="sensor-value" id="tiltYValue">-1.2</div>
+                        <div class="sensor-label">Tilt Y (°)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Log Card -->
+            <div class="card">
+                <h3>📝 Activity Log</h3>
+                <div class="log-container" id="logContainer">
+                    <div class="log-entry">[12:34:56] System initialized successfully</div>
+                    <div class="log-entry">[12:35:02] Mode switched to Tilt Control</div>
+                    <div class="log-entry">[12:35:15] Movement detected - Forward</div>
+                    <div class="log-entry">[12:35:28] Obstacle detected at 45cm</div>
+                    <div class="log-entry">[12:35:30] Auto-navigation engaged</div>
+                </div>
+            </div>
+
+            <!-- Emergency Alert Card -->
+            <div class="card">
+                <h3>⚠️ Safety Monitoring</h3>
+                <div class="status-grid">
+                    <div class="status-item active" id="obstacleStatus">
+                        <strong>Path Clear</strong><br>
+                        <span>No obstacles detected</span>
+                    </div>
+                    <div class="status-item active" id="stabilityStatus">
+                        <strong>Stable</strong><br>
+                        <span>Within safe limits</span>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-danger" onclick="testEmergency()">
+                        🚨 Test Emergency Alert
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergency Alert Modal -->
+    <div class="alert" id="emergencyAlert">
+        <h2 style="color: #f44336; margin-bottom: 15px;">🚨 EMERGENCY ALERT</h2>
+        <p id="alertMessage">Emergency stop has been activated!</p>
+        <button class="btn btn-primary" onclick="closeAlert()" style="margin-top: 15px;">
+            Acknowledge
+        </button>
+    </div>
+
+    <script>
+        // Global variables
+        let isConnected = false;
+        let currentMode = 'tilt';
+        let emergencyActive = false;
+        
+        // Simulated data for demo purposes
+        let sensorData = {
+            speed: 7,
+            distance: 156,
+            tiltX: 2.3,
+            tiltY: -1.2,
+            battery: 85,
+            obstacle: false
+        };
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            updateConnectionStatus();
+            startDataUpdates();
+            initializeWebSocket();
+        });
+
+        // WebSocket connection for real-time data
+        function initializeWebSocket() {
+            // In a real implementation, this would connect to the ESP32
+            // For demo purposes, we'll simulate the connection
+            setTimeout(() => {
+                isConnected = true;
+                updateConnectionStatus();
+                addLogEntry('Connected to mobility system');
+            }, 2000);
+        }
+
+        // Update connection status indicator
+        function updateConnectionStatus() {
+            const statusElement = document.getElementById('connectionStatus');
+            const statusText = document.getElementById('statusText');
+            
+            if (isConnected) {
+                statusElement.className = 'connection-status connected';
+                statusText.textContent = 'Connected';
+            } else {
+                statusElement.className = 'connection-status disconnected';
+                statusText.textContent = 'Disconnected';
+            }
+        }
+
+        // Start periodic data updates
+        function startDataUpdates() {
+            setInterval(() => {
+                if (isConnected) {
+                    updateSensorData();
+                    updateSystemStatus();
+                }
+            }, 1000);
+        }
+
+        // Update sensor data display
+        function updateSensorData() {
+            // Simulate data variations
+            sensorData.speed += (Math.random() - 0.5) * 0.2;
+            sensorData.distance += (Math.random() - 0.5) * 20;
+            sensorData.tiltX += (Math.random() - 0.5) * 0.5;
+            sensorData.tiltY += (Math.random() - 0.5) * 0.5;
+            sensorData.battery -= 0.01;
+
+            // Clamp values
+            sensorData.speed = Math.max(0, Math.min(10, sensorData.speed));
+            sensorData.distance = Math.max(10, Math.min(300, sensorData.distance));
+            sensorData.tiltX = Math.max(-30, Math.min(30, sensorData.tiltX));
+            sensorData.tiltY = Math.max(-30, Math.min(30, sensorData.tiltY));
+            sensorData.battery = Math.max(0, sensorData.battery);
+
+            // Update display
+            document.getElementById('speedValue').textContent = Math.round(sensorData.speed);
+            document.getElementById('distanceValue').textContent = Math.round(sensorData.distance);
+            document.getElementById('tiltXValue').textContent = sensorData.tiltX.toFixed(1);
+            document.getElementById('tiltYValue').textContent = sensorData.tiltY.toFixed(1);
+            document.getElementById('batteryText').textContent = Math.round(sensorData.battery) + '%';
+
+            // Check for obstacles
+            if (sensorData.distance < 30) {
+                sensorData.obstacle = true;
+                updateObstacleStatus(true);
+            } else {
+                sensorData.obstacle = false;
+                updateObstacleStatus(false);
+            }
+        }
+
+        // Update system status indicators
+        function updateSystemStatus() {
+            const systemStatus = document.getElementById('systemStatus');
+            const batteryStatus = document.getElementById('batteryStatus');
+            const motorStatus = document.getElementById('motorStatus');
+            const sensorStatus = document.getElementById('sensorStatus');
+
+            // System status
+            if (emergencyActive) {
+                systemStatus.className = 'status-item danger';
+                document.getElementById('systemText').textContent = 'EMERGENCY';
+            } else {
+                systemStatus.className = 'status-item active';
+                document.getElementById('systemText').textContent = 'Online';
+            }
+
+            // Battery status
+            if (sensorData.battery < 20) {
+                batteryStatus.className = 'status-item danger';
+            } else if (sensorData.battery < 50) {
+                batteryStatus.className = 'status-item inactive';
+            } else {
+                batteryStatus.className = 'status-item active';
+            }
+
+            // Motor status
+            if (emergencyActive) {
+                motorStatus.className = 'status-item danger';
+                document.getElementById('motorText').textContent = 'STOPPED';
+            } else {
+                motorStatus.className = 'status-item active';
+                document.getElementById('motorText').textContent = 'Active';
+            }
+
+            // Sensor status
+            sensorStatus.className = 'status-item active';
+            document.getElementById('sensorText').textContent = 'Normal';
+        }
+
+        // Update obstacle detection status
+        function updateObstacleStatus(hasObstacle) {
+            const obstacleStatus = document.getElementById('obstacleStatus');
+            
+            if (hasObstacle) {
+                obstacleStatus.className = 'status-item danger';
+                obstacleStatus.innerHTML = '<strong>OBSTACLE!</strong><br><span>Object detected ahead</span>';
+                addLogEntry('⚠️ Obstacle detected at ' + Math.round(sensorData.distance) + 'cm');
+            } else {
+                obstacleStatus.className = 'status-item active';
+                obstacleStatus.innerHTML = '<strong>Path Clear</strong><br><span>No obstacles detected</span>';
+            }
+        }
+
+        // Mode control functions
+        function setMode(mode) {
+            // Remove active class from all modes
+            document.querySelectorAll('.mode-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Add active class to selected mode
+            const modeButton = document.getElementById(mode + 'Mode');
+            modeButton.classList.add('active');
+
+            currentMode = mode;
+            addLogEntry('Mode changed to: ' + mode.charAt(0).toUpperCase() + mode.slice(1));
+
+            // In real implementation, send command to ESP32
+            sendCommand('/mode/' + mode);
+        }
+
+        // Emergency stop function
+        function emergencyStop() {
+            emergencyActive = true;
+            showAlert('EMERGENCY STOP ACTIVATED', 'All motors have been stopped immediately for safety.');
+            addLogEntry('🛑 EMERGENCY STOP ACTIVATED');
+            sendCommand('/emergency');
+        }
+
+        // Reset system function
+        function resetSystem() {
+            emergencyActive = false;
+            addLogEntry('🔄 System reset - Normal operation resumed');
+            sendCommand('/reset');
+        }
+
+        // Ramp control functions
+        function deployRamp() {
+            addLogEntry('📤 Deploying access ramp...');
+            sendCommand('/ramp_deploy');
+            setTimeout(() => {
+                addLogEntry('✅ Ramp deployment complete');
+            }, 3000);
+        }
+
+        function retractRamp() {
+            addLogEntry('📥 Retracting access ramp...');
+            sendCommand('/ramp_retract');
+            setTimeout(() => {
+                addLogEntry('✅ Ramp retraction complete');
+            }, 3000);
+        }
+
+        // Brake control functions
+        function activateBrake() {
+            addLogEntry('🔒 Brake engaged for safety');
+            sendCommand('/brake_engage');
+        }
+
+        function releaseBrake() {
+            addLogEntry('🔓 Brake released - Ready to move');
+            sendCommand('/brake_release');
+        }
+
+        // Test emergency alert
+        function testEmergency() {
+            showAlert('TEST ALERT', 'This is a test of the emergency alert system. All systems are functioning normally.');
+            addLogEntry('🧪 Emergency alert system test completed');
+        }
+
+        // Send command to ESP32 (placeholder for real implementation)
+        function sendCommand(endpoint) {
+            if (!isConnected) {
+                addLogEntry('❌ Command failed - Not connected to system');
+                return;
+            }
+
+            // In real implementation:
+            // fetch('http://192.168.4.1' + endpoint)
+            //     .then(response => response.text())
+            //     .then(data => addLogEntry('✅ Command sent: ' + endpoint));
+
+            addLogEntry('📡 Command sent: ' + endpoint);
+        }
+
+        // Show alert modal
+        function showAlert(title, message) {
+            const alert = document.getElementById('emergencyAlert');
+            const alertMessage = document.getElementById('alertMessage');
+            
+            alert.querySelector('h2').innerHTML = '🚨 ' + title;
+            alertMessage.textContent = message;
+            alert.classList.add('show');
+        }
+
+        // Close alert modal
+        function closeAlert() {
+            document.getElementById('emergencyAlert').classList.remove('show');
+        }
+
+        // Add entry to activity log
+        function addLogEntry(message) {
+            const logContainer = document.getElementById('logContainer');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            
+            logContainer.insertBefore(logEntry, logContainer.firstChild);
+            
+            // Keep only last 20 entries
+            while (logContainer.children.length > 20) {
+                logContainer.removeChild(logContainer.lastChild);
+            }
+        }
+
+        // Keyboard shortcuts for accessibility
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'e':
+                        e.preventDefault();
+                        emergencyStop();
+                        break;
+                    case 'r':
+                        e.preventDefault();
+                        resetSystem();
+                        break;
+                    case '1':
+                        e.preventDefault();
+                        setMode('manual');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        setMode('tilt');
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        setMode('auto');
+                        break;
+                }
+            }
+        });
+
+        // Handle visibility change to pause/resume updates
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                addLogEntry('📱 Dashboard minimized - Monitoring continues');
+            } else {
+                addLogEntry('📱 Dashboard active - Full monitoring resumed');
+            }
+        });
+    </script>
+</body>
+</html>

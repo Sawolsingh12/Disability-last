@@ -1,0 +1,153 @@
+# 🧑‍🦽 Multi-Control Assistive Mobility & Obstacle Response System
+
+## 🏆 Hardware Hackathon Project - Assisting People with Disabilities
+
+### 📋 Project Overview
+An innovative assistive mobility system designed to enhance independence for individuals with mobility challenges. The system features multiple control modes, intelligent obstacle detection, and predictive safety mechanisms.
+
+### ✅ Key Features & Components
+
+| Component | Feature | Purpose |
+|-----------|---------|---------|
+| **MPU6050** | Head tilt navigation | Forward, left, right, stop control via head movements |
+| **BO Motors + L298N** | Motorized movement | Dual-motor drive system with PWM speed control |
+| **IR Sensor** | Near-object detection | Immediate obstacle stopping mechanism |
+| **Ultrasonic (HC-SR04)** | Long-range detection | Predictive obstacle avoidance (up to 3m) |
+| **Servo Motors (2x)** | Automated mechanisms | Ramp deployment & emergency brake system |
+| **LCD + I2C** | Real-time display | Mode, direction, speed, and distance information |
+| **DP-DT Switch** | Mode selection | Manual, Tilt, and Obstacle-Aware modes |
+| **Push Buttons (2x)** | Manual override | Direct movement control when needed |
+| **Potentiometer** | Speed control | User-adjustable speed settings |
+| **Buzzer + RGB LED** | Audio/visual feedback | Status indication and safety alerts |
+| **ESP32** | Main controller | Data logging, WiFi connectivity, sensor processing |
+| **Transistor + Relay** | Power management | High-current ramp motor control |
+
+### 🚀 Innovative Features
+
+#### 1. **Multi-Modal Control System**
+- **Manual Mode**: Traditional button-based control
+- **Tilt Mode**: Hands-free head movement navigation
+- **Obstacle-Aware Mode**: AI-powered autonomous navigation
+
+#### 2. **Predictive Safety System**
+- Dual-sensor obstacle detection (IR + Ultrasonic)
+- Machine learning-based collision risk prediction
+- Automatic emergency braking with servo mechanism
+- Real-time anomaly detection
+
+#### 3. **Accessibility Enhancements**
+- Automatic ramp deployment for curbs and steps
+- Visual and audio feedback for users with different abilities
+- Caregiver dashboard for remote monitoring and control
+- Customizable sensitivity settings
+
+#### 4. **Smart Data Analytics**
+- Real-time usage pattern analysis
+- Predictive maintenance alerts
+- Personalized usage recommendations
+- Safety incident logging and reporting
+
+### 🔧 System Architecture
+
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   User Input    │    │   ESP32 MCU      │    │   Motor System  │
+│                 │    │                  │    │                 │
+│ • Head Tilt     │───▶│ • Sensor Fusion  │───▶│ • L298N Driver  │
+│ • Manual Btns   │    │ • ML Processing  │    │ • DC Motors     │
+│ • Speed Pot     │    │ • Safety Logic   │    │ • Servo Brakes  │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+         │                        │                        │
+         ▼                        ▼                        ▼
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│ Safety Sensors  │    │  Data Logging    │    │    Feedback     │
+│                 │    │                  │    │                 │
+│ • Ultrasonic    │───▶│ • Usage Analytics│───▶│ • LCD Display   │
+│ • IR Detection  │    │ • WiFi Telemetry │    │ • RGB LEDs      │
+│ • MPU6050 IMU   │    │ • Cloud Storage  │    │ • Audio Alerts  │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+```
+
+### 📱 Caregiver Dashboard Features
+
+- **Real-time Monitoring**: Live sensor data and system status
+- **Remote Control**: Emergency stop, mode switching, ramp control
+- **Safety Alerts**: Immediate notifications for obstacles or anomalies
+- **Usage Analytics**: Daily/weekly usage patterns and recommendations
+- **Health Monitoring**: Battery status, system diagnostics
+- **Emergency Response**: One-click emergency services contact
+
+### 🛠️ Hardware Setup
+
+#### Required Components:
+- ESP32 Development Board
+- MPU6050 6-axis Gyroscope/Accelerometer
+- L298N Motor Driver Module
+- 2x DC Geared Motors with Wheels
+- HC-SR04 Ultrasonic Distance Sensor
+- IR Obstacle Detection Sensor
+- 2x SG90 Servo Motors
+- 16x2 LCD Display with I2C Module
+- DP-DT Toggle Switch
+- 2x Push Buttons
+- 10kΩ Potentiometer
+- Buzzer Module
+- RGB LED (or 3x individual LEDs)
+- Relay Module (5V)
+- 12V LiPo Battery Pack
+- LM2596 Buck Converter (12V to 5V)
+- Transistor (NPN 2N2222)
+- Resistors: 220Ω, 1kΩ, 10kΩ
+- Jumper wires and breadboard/PCB
+
+#### Pin Connections:
+```
+ESP32 Pin    | Component           | Function
+-------------|--------------------|-----------------
+GPIO 2       | L298N IN1          | Left Motor Control
+GPIO 4       | L298N IN2          | Left Motor Control  
+GPIO 5       | L298N ENA          | Left Motor PWM
+GPIO 16      | L298N IN3          | Right Motor Control
+GPIO 17      | L298N IN4          | Right Motor Control
+GPIO 18      | L298N ENB          | Right Motor PWM
+GPIO 19      | IR Sensor          | Obstacle Detection
+GPIO 21      | LCD SDA            | I2C Data
+GPIO 22      | LCD SCL            | I2C Clock
+GPIO 23      | Buzzer             | Audio Alerts
+GPIO 25      | Red LED            | Status Indicator
+GPIO 26      | Green LED          | Status Indicator
+GPIO 27      | Blue LED           | Status Indicator
+GPIO 32      | Mode Switch        | Control Mode
+GPIO 33      | Manual Button 1    | Forward Control
+GPIO 34      | Manual Button 2    | Turn Control
+GPIO 35      | Speed Pot          | Speed Control
+GPIO 12      | Servo 1            | Ramp Control
+GPIO 13      | Servo 2            | Brake Control
+GPIO 14      | Relay              | Ramp Motor Power
+3.3V         | MPU6050 VCC        | Power
+GND          | All Ground Pins    | Common Ground
+```
+
+### 💻 Software Installation
+
+#### Arduino IDE Setup:
+1. Install ESP32 Board Package in Arduino IDE
+2. Install required libraries:
+   ```
+   - Wire (built-in)
+   - LiquidCrystal_I2C
+   - Servo (built-in) 
+   - MPU6050
+   - WiFi (built-in)
+   - WebServer (built-in)
+   ```
+
+#### Python Environment:
+```bash
+pip install pandas numpy matplotlib seaborn scikit-learn pyserial
+```
+
+#### Web Dashboard:
+- No additional installation required
+- Access via ESP32's WiFi Access Point
+- Default credentials: SSID: "Mobility
